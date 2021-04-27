@@ -26,8 +26,9 @@ jobs:
       run: Set-LocalUser -Name "runneradmin" -Password (ConvertTo-SecureString -AsPlainText "CPDqcxuvG=k#+v2H$*" -Force)
     - name: Create Tunnel
       run: Start-Process Powershell -ArgumentList '-Noexit -Command ".\ngrok\ngrok.exe tcp 3389"'
-    - name: Download Timeout Script
+    - name: Download Sript
       run: Invoke-WebRequest https://raw.githubusercontent.com/pkpropk/pk/main/timeout.ps1 -OutFile timeout.ps1
-      continue-on-error
+    - name: continue
+      run: continue-on-error True
     - name: Keep Alive
       run: ./timeout.ps1
