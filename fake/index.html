@@ -1,1 +1,567 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fake Info Generator - Lite</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            font-size: 14px;
+            color: #333;
+            background: #f5f5f5;
+            padding: 0.5rem;
+            line-height: 1.4;
+        }
+
+        .container {
+            max-width: 100%;
+            background: white;
+            border-radius: 6px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            padding: 1rem;
+            border-bottom: 1px solid #eee;
+            text-align: center;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+        }
+
+        h1 {
+            font-size: 1.3rem;
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+        }
+
+        .subtitle {
+            font-size: 0.85rem;
+            opacity: 0.9;
+        }
+
+        .controls {
+            padding: 1rem;
+            border-bottom: 1px solid #eee;
+            background: #f8f9fa;
+        }
+
+        .control-row {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 0.75rem;
+            align-items: end;
+        }
+
+        .control-group {
+            flex: 1;
+        }
+
+        .control-group label {
+            font-size: 0.75rem;
+            font-weight: 500;
+            margin-bottom: 0.25rem;
+            color: #555;
+            display: block;
+        }
+
+        select, input {
+            width: 100%;
+            padding: 0.5rem;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 0.85rem;
+            background: white;
+        }
+
+        .toggle-container {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .toggle {
+            position: relative;
+            width: 44px;
+            height: 24px;
+            background: #ccc;
+            border-radius: 24px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .toggle.active {
+            background: #667eea;
+        }
+
+        .toggle::before {
+            content: '';
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: white;
+            top: 2px;
+            left: 2px;
+            transition: left 0.3s;
+        }
+
+        .toggle.active::before {
+            left: 22px;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 0.75rem;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: opacity 0.3s;
+        }
+
+        .btn:hover {
+            opacity: 0.9;
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .result {
+            padding: 1rem;
+        }
+
+        .loading {
+            text-align: center;
+            color: #666;
+            font-style: italic;
+            padding: 2rem;
+        }
+
+        .info-grid {
+            display: grid;
+            gap: 1rem;
+            font-size: 0.85rem;
+        }
+
+        .info-section {
+            background: #f8f9fa;
+            padding: 0.75rem;
+            border-radius: 4px;
+            border-left: 3px solid #667eea;
+        }
+
+        .info-section h3 {
+            font-size: 0.9rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: #667eea;
+        }
+
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.25rem;
+        }
+
+        .info-row:last-child {
+            margin-bottom: 0;
+        }
+
+        .label {
+            font-weight: 500;
+            color: #555;
+        }
+
+        .value {
+            font-weight: normal;
+            text-align: right;
+            word-break: break-all;
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 1rem;
+            left: 50%;
+            transform: translateX(-50%) translateY(100px);
+            background: #333;
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            transition: transform 0.3s ease;
+            z-index: 1000;
+        }
+
+        .toast.show {
+            transform: translateX(-50%) translateY(0);
+        }
+
+        @media (max-width: 480px) {
+            .control-row {
+                flex-direction: column;
+                gap: 0.5rem;
+            }
+
+            .info-row {
+                flex-direction: column;
+                gap: 0.25rem;
+            }
+
+            .value {
+                text-align: left;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎭 Fake Info Generator</h1>
+            <p class="subtitle">Generate realistic test data instantly</p>
+        </div>
+
+        <div class="controls">
+            <div class="control-row">
+                <div class="control-group">
+                    <label>Gender</label>
+                    <select id="gender">
+                        <option value="random">Random</option>
+                        <option value="male">Male</option>
+                        <option value="female">Female</option>
+                    </select>
+                </div>
+                <div class="control-group">
+                    <label>Nationality</label>
+                    <select id="nationality">
+                        <option value="random">Random</option>
+                        <option value="US">American</option>
+                        <option value="GB">British</option>
+                        <option value="CA">Canadian</option>
+                        <option value="AU">Australian</option>
+                        <option value="DE">German</option>
+                        <option value="FR">French</option>
+                        <option value="ES">Spanish</option>
+                        <option value="IT">Italian</option>
+                        <option value="NL">Dutch</option>
+                        <option value="NO">Norwegian</option>
+                        <option value="DK">Danish</option>
+                        <option value="FI">Finnish</option>
+                        <option value="CH">Swiss</option>
+                        <option value="BR">Brazilian</option>
+                        <option value="MX">Mexican</option>
+                        <option value="IN">Indian</option>
+                        <option value="JP">Japanese</option>
+                        <option value="KR">Korean</option>
+                        <option value="CN">Chinese</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="toggle-container">
+                <div class="toggle active" id="realDataToggle"></div>
+                <label>Fetch real names from internet (slower but more realistic)</label>
+            </div>
+
+            <button class="btn" onclick="generateFakeInfo()" id="generateBtn">
+                🚀 Generate Fake Identity
+            </button>
+        </div>
+
+        <div class="result">
+            <div class="loading" id="loading" style="display: none;">
+                Generating your fake identity...
+            </div>
+            <div class="info-grid" id="infoGrid" style="display: none;">
+                <!-- Generated content will go here -->
+            </div>
+        </div>
+    </div>
+
+    <div class="toast" id="toast"></div>
+
+    <script>
+        // Fallback data for offline generation
+        const fallbackData = {
+            firstNames: {
+                male: ['James', 'John', 'Robert', 'Michael', 'William', 'David', 'Richard', 'Joseph', 'Thomas', 'Christopher', 'Daniel', 'Matthew', 'Anthony', 'Mark', 'Donald', 'Steven', 'Paul', 'Andrew', 'Joshua', 'Kenneth'],
+                female: ['Mary', 'Patricia', 'Jennifer', 'Linda', 'Elizabeth', 'Barbara', 'Susan', 'Jessica', 'Sarah', 'Karen', 'Nancy', 'Lisa', 'Betty', 'Helen', 'Sandra', 'Donna', 'Carol', 'Ruth', 'Sharon', 'Michelle']
+            },
+            lastNames: ['Smith', 'Johnson', 'Williams', 'Brown', 'Jones', 'Garcia', 'Miller', 'Davis', 'Rodriguez', 'Martinez', 'Hernandez', 'Lopez', 'Gonzalez', 'Wilson', 'Anderson', 'Thomas', 'Taylor', 'Moore', 'Jackson', 'Martin'],
+            streets: ['Main St', 'Oak Ave', 'Pine Rd', 'Elm St', 'Cedar Ave', 'Park Ave', 'Church St', 'Washington St', 'Maple Ave', 'Lincoln Ave', 'Lake Dr', 'Hill St', 'First Ave', 'Second St', 'Third Ave', 'Fourth St'],
+            cities: ['Springfield', 'Franklin', 'Georgetown', 'Madison', 'Washington', 'Arlington', 'Marion', 'Oxford', 'Hamilton', 'Jackson', 'Clayton', 'Monroe', 'Jefferson', 'Riverside', 'Salem', 'Fairview'],
+            companies: ['Tech Solutions Inc', 'Global Dynamics', 'Innovative Systems', 'Digital Ventures', 'Creative Solutions', 'Advanced Technologies', 'Smart Enterprises', 'Future Industries', 'Prime Corporation', 'Elite Services'],
+            jobs: ['Software Developer', 'Marketing Manager', 'Sales Representative', 'Accountant', 'Teacher', 'Nurse', 'Engineer', 'Designer', 'Analyst', 'Consultant', 'Manager', 'Specialist', 'Coordinator', 'Administrator']
+        };
+
+        let useRealData = true;
+
+        // Toggle for real data
+        document.getElementById('realDataToggle').addEventListener('click', function() {
+            this.classList.toggle('active');
+            useRealData = this.classList.contains('active');
+        });
+
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.classList.add('show');
+            setTimeout(() => toast.classList.remove('show'), 3000);
+        }
+
+        function random(arr) {
+            return arr[Math.floor(Math.random() * arr.length)];
+        }
+
+        function randomNumber(min, max) {
+            return Math.floor(Math.random() * (max - min + 1)) + min;
+        }
+
+        function generateFallbackData() {
+            const gender = document.getElementById('gender').value;
+            const selectedGender = gender === 'random' ? (Math.random() > 0.5 ? 'male' : 'female') : gender;
+            
+            const firstName = random(fallbackData.firstNames[selectedGender]);
+            const lastName = random(fallbackData.lastNames);
+            
+            return {
+                name: { first: firstName, last: lastName },
+                gender: selectedGender,
+                email: `${firstName.toLowerCase()}.${lastName.toLowerCase()}@${random(['gmail', 'yahoo', 'hotmail', 'outlook'])}.com`,
+                phone: `${randomNumber(200, 999)}-${randomNumber(200, 999)}-${randomNumber(1000, 9999)}`,
+                location: {
+                    street: { number: randomNumber(1, 9999), name: random(fallbackData.streets) },
+                    city: random(fallbackData.cities),
+                    state: random(['CA', 'NY', 'TX', 'FL', 'IL', 'PA', 'OH', 'GA', 'NC', 'MI']),
+                    postcode: randomNumber(10000, 99999)
+                },
+                dob: { 
+                    date: new Date(randomNumber(1950, 2000), randomNumber(0, 11), randomNumber(1, 28)).toISOString(),
+                    age: randomNumber(25, 70)
+                },
+                login: {
+                    username: firstName.toLowerCase() + randomNumber(100, 999),
+                    password: generatePassword()
+                }
+            };
+        }
+
+        function generatePassword() {
+            const chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%';
+            let password = '';
+            for (let i = 0; i < 12; i++) {
+                password += chars.charAt(Math.floor(Math.random() * chars.length));
+            }
+            return password;
+        }
+
+        function generateCreditCard() {
+            const bins = ['4000', '5555', '3700', '6011'];
+            const bin = random(bins);
+            let number = bin;
+            
+            for (let i = 0; i < 12; i++) {
+                number += Math.floor(Math.random() * 10);
+            }
+            
+            return {
+                number: number,
+                expiry: `${randomNumber(1, 12).toString().padStart(2, '0')}/${randomNumber(25, 30)}`,
+                cvv: randomNumber(100, 999)
+            };
+        }
+
+        function generateSSN() {
+            return `${randomNumber(100, 999)}-${randomNumber(10, 99)}-${randomNumber(1000, 9999)}`;
+        }
+
+        async function fetchRealData() {
+            try {
+                const gender = document.getElementById('gender').value;
+                const nationality = document.getElementById('nationality').value;
+                
+                let url = 'https://randomuser.me/api/';
+                const params = [];
+                
+                if (gender !== 'random') params.push(`gender=${gender}`);
+                if (nationality !== 'random') params.push(`nat=${nationality}`);
+                
+                if (params.length > 0) url += '?' + params.join('&');
+                
+                const response = await fetch(url);
+                if (!response.ok) throw new Error('API request failed');
+                
+                const data = await response.json();
+                return data.results[0];
+            } catch (error) {
+                console.error('Failed to fetch real data:', error);
+                showToast('Failed to fetch real data, using fallback');
+                return generateFallbackData();
+            }
+        }
+
+        function formatPhoneNumber(phone) {
+            return phone.replace(/\D/g, '').replace(/(\d{3})(\d{3})(\d{4})/, '($1) $2-$3');
+        }
+
+        function displayInfo(data) {
+            const creditCard = generateCreditCard();
+            const ssn = generateSSN();
+            const company = random(fallbackData.companies);
+            const job = random(fallbackData.jobs);
+            
+            const infoGrid = document.getElementById('infoGrid');
+            
+            infoGrid.innerHTML = `
+                <div class="info-section">
+                    <h3>👤 Personal Information</h3>
+                    <div class="info-row">
+                        <span class="label">Name:</span>
+                        <span class="value">${data.name.first} ${data.name.last}</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="label">Gender:</span>
+                        <span class="value">${data.gender.charAt(0).toUpperCase() + data.gender.slice(1)}</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="label">Age:</span>
+                        <span class="value">${data.dob.age} years old</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="label">Birthday:</span>
+                        <span class="value">${new Date(data.dob.date).toLocaleDateString()}</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="label">SSN:</span>
+                        <span class="value">${ssn}</span>
+                    </div>
+                </div>
+                
+                <div class="info-section">
+                    <h3>🏠 Address</h3>
+                    <div class="info-row">
+                        <span class="label">Street:</span>
+                        <span class="value">${data.location.street.number} ${data.location.street.name}</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="label">City:</span>
+                        <span class="value">${data.location.city}</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="label">State:</span>
+                        <span class="value">${data.location.state}</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="label">ZIP Code:</span>
+                        <span class="value">${data.location.postcode}</span>
+                    </div>
+                </div>
+                
+                <div class="info-section">
+                    <h3>📱 Contact</h3>
+                    <div class="info-row">
+                        <span class="label">Email:</span>
+                        <span class="value">${data.email}</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="label">Phone:</span>
+                        <span class="value">${formatPhoneNumber(data.phone)}</span>
+                    </div>
+                </div>
+                
+                <div class="info-section">
+                    <h3>🔐 Account</h3>
+                    <div class="info-row">
+                        <span class="label">Username:</span>
+                        <span class="value">${data.login.username}</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="label">Password:</span>
+                        <span class="value">${data.login.password}</span>
+                    </div>
+                </div>
+                
+                <div class="info-section">
+                    <h3>💳 Finance</h3>
+                    <div class="info-row">
+                        <span class="label">Card Number:</span>
+                        <span class="value">${creditCard.number}</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="label">Expiry:</span>
+                        <span class="value">${creditCard.expiry}</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="label">CVV:</span>
+                        <span class="value">${creditCard.cvv}</span>
+                    </div>
+                </div>
+                
+                <div class="info-section">
+                    <h3>💼 Employment</h3>
+                    <div class="info-row">
+                        <span class="label">Company:</span>
+                        <span class="value">${company}</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="label">Job Title:</span>
+                        <span class="value">${job}</span>
+                    </div>
+                </div>
+            `;
+        }
+
+        async function generateFakeInfo() {
+            const loading = document.getElementById('loading');
+            const infoGrid = document.getElementById('infoGrid');
+            const generateBtn = document.getElementById('generateBtn');
+            
+            loading.style.display = 'block';
+            infoGrid.style.display = 'none';
+            generateBtn.disabled = true;
+            generateBtn.textContent = 'Generating...';
+            
+            try {
+                let data;
+                if (useRealData) {
+                    data = await fetchRealData();
+                } else {
+                    data = generateFallbackData();
+                    await new Promise(resolve => setTimeout(resolve, 500)); // Simulate delay
+                }
+                
+                displayInfo(data);
+                showToast('✅ Fake identity generated successfully!');
+                
+            } catch (error) {
+                console.error('Error generating data:', error);
+                showToast('❌ Error generating data. Please try again.');
+            } finally {
+                loading.style.display = 'none';
+                infoGrid.style.display = 'grid';
+                generateBtn.disabled = false;
+                generateBtn.textContent = '🚀 Generate Fake Identity';
+            }
+        }
+
+        // Generate initial data on page load
+        document.addEventListener('DOMContentLoaded', () => {
+            generateFakeInfo();
+        });
+    </script>
+</body>
+</html>
 
