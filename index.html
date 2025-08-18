@@ -2,124 +2,571 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Credit Card Generator Demo</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Liquid Card Generator</title>
     <style>
-        body {font-family:sans-serif; margin:20px; background:#f7f7f7;}
-        label, input, select {display:block; margin:5px 0;}
-        #cards {margin-top:20px; white-space:pre; background:#fff; padding:1em;}
-        .btn {padding:0.4em 1em; margin-top:8px;}
-        .success {color:green;}
-        .error {color:red;}
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        /* Animated background bubbles */
+        body::before {
+            content: '';
+            position: fixed;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: 
+                radial-gradient(circle at 20% 80%, rgba(120, 119, 198, 0.3) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(255, 119, 198, 0.3) 0%, transparent 50%),
+                radial-gradient(circle at 40% 40%, rgba(120, 219, 255, 0.3) 0%, transparent 50%);
+            animation: float 20s ease-in-out infinite;
+            z-index: -1;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translate(0px, 0px) rotate(0deg); }
+            33% { transform: translate(30px, -30px) rotate(120deg); }
+            66% { transform: translate(-20px, 20px) rotate(240deg); }
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 2rem;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            gap: 2rem;
+        }
+
+        .glass-card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(20px);
+            border-radius: 24px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 2.5rem;
+            box-shadow: 
+                0 8px 32px 0 rgba(31, 38, 135, 0.37),
+                inset 0 1px 0 rgba(255, 255, 255, 0.3);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .glass-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 
+                0 20px 40px 0 rgba(31, 38, 135, 0.5),
+                inset 0 1px 0 rgba(255, 255, 255, 0.4);
+        }
+
+        h1 {
+            text-align: center;
+            color: rgba(255, 255, 255, 0.95);
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            text-shadow: 0 2px 20px rgba(0, 0, 0, 0.3);
+            background: linear-gradient(135deg, #fff 0%, rgba(255, 255, 255, 0.8) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 1.1rem;
+            margin-bottom: 2rem;
+            font-weight: 300;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .form-group {
+            position: relative;
+        }
+
+        .form-group label {
+            display: block;
+            color: rgba(255, 255, 255, 0.8);
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+            font-size: 0.9rem;
+            letter-spacing: 0.5px;
+        }
+
+        .liquid-input {
+            width: 100%;
+            padding: 1rem 1.25rem;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 16px;
+            color: white;
+            font-size: 1rem;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            backdrop-filter: blur(10px);
+        }
+
+        .liquid-input:focus {
+            outline: none;
+            border-color: rgba(255, 255, 255, 0.5);
+            background: rgba(255, 255, 255, 0.15);
+            box-shadow: 
+                0 0 0 3px rgba(255, 255, 255, 0.1),
+                0 8px 25px rgba(0, 0, 0, 0.15);
+            transform: translateY(-2px);
+        }
+
+        .liquid-input::placeholder {
+            color: rgba(255, 255, 255, 0.5);
+        }
+
+        .checkbox-group {
+            display: flex;
+            gap: 2rem;
+            margin: 1.5rem 0;
+            flex-wrap: wrap;
+        }
+
+        .checkbox-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .liquid-checkbox {
+            position: relative;
+            width: 20px;
+            height: 20px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 6px;
+            transition: all 0.3s ease;
+        }
+
+        .liquid-checkbox input {
+            opacity: 0;
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            cursor: pointer;
+        }
+
+        .liquid-checkbox input:checked + .checkmark {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border-color: rgba(255, 255, 255, 0.5);
+        }
+
+        .liquid-checkbox input:checked + .checkmark::after {
+            opacity: 1;
+            transform: scale(1);
+        }
+
+        .checkmark::after {
+            content: '✓';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0);
+            color: white;
+            font-size: 12px;
+            font-weight: bold;
+            opacity: 0;
+            transition: all 0.2s ease;
+        }
+
+        .checkbox-label {
+            color: rgba(255, 255, 255, 0.8);
+            font-weight: 400;
+        }
+
+        .liquid-btn {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.2) 0%, rgba(255, 255, 255, 0.1) 100%);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 16px;
+            color: white;
+            padding: 1rem 2rem;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            backdrop-filter: blur(10px);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .liquid-btn:hover {
+            transform: translateY(-3px);
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.3) 0%, rgba(255, 255, 255, 0.2) 100%);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+        }
+
+        .liquid-btn:active {
+            transform: translateY(-1px);
+        }
+
+        .liquid-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s;
+        }
+
+        .liquid-btn:hover::before {
+            left: 100%;
+        }
+
+        .generate-btn {
+            width: 100%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            margin-bottom: 1rem;
+            font-size: 1.2rem;
+            padding: 1.25rem;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .results-container {
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 20px;
+            padding: 2rem;
+            min-height: 200px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            position: relative;
+        }
+
+        .results-container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+        }
+
+        #cards {
+            color: rgba(255, 255, 255, 0.9);
+            font-family: 'JetBrains Mono', 'Courier New', monospace;
+            font-size: 0.95rem;
+            line-height: 1.6;
+            white-space: pre-wrap;
+            word-break: break-all;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            color: rgba(255, 255, 255, 0.7);
+            font-style: italic;
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: rgba(255, 255, 255, 0.8);
+            animation: spin 1s ease-in-out infinite;
+            margin-right: 0.5rem;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 1rem 1.5rem;
+            border-radius: 12px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transform: translateX(400px);
+            transition: transform 0.3s ease;
+            z-index: 1000;
+        }
+
+        .notification.show {
+            transform: translateX(0);
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 1rem;
+            }
+            
+            .glass-card {
+                padding: 1.5rem;
+            }
+            
+            h1 {
+                font-size: 2rem;
+            }
+            
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .checkbox-group {
+                justify-content: center;
+            }
+            
+            .action-buttons {
+                flex-direction: column;
+            }
+        }
     </style>
 </head>
 <body>
+    <div class="container">
+        <div class="glass-card">
+            <h1>✨ Liquid Card Generator</h1>
+            <p class="subtitle">Beautiful test card generation for developers</p>
+            
+            <form id="genForm">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="bin">🎯 BIN Prefix</label>
+                        <input type="text" id="bin" class="liquid-input" placeholder="400000XXXXXXXXXX">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="quantity">📊 Quantity</label>
+                        <input type="number" id="quantity" class="liquid-input" min="1" max="100" value="10">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="month">📅 Expiry Month</label>
+                        <input type="text" id="month" class="liquid-input" maxlength="2" placeholder="MM (Random if empty)">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="year">🗓️ Expiry Year</label>
+                        <input type="text" id="year" class="liquid-input" maxlength="4" placeholder="YYYY or YY">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="cvvlen">🔒 CVV Length</label>
+                        <select id="cvvlen" class="liquid-input">
+                            <option value="3">3 digits</option>
+                            <option value="4">4 digits</option>
+                        </select>
+                    </div>
+                </div>
 
-    
-<h2>Credit Card Generator</h2>
-<form id="genForm">
-    <label>BIN prefix (use X for random digits, e.g. 400000XXXXXXXXXX):</label>
-    <input type="text" id="bin" placeholder="400000XXXXXXXXXX">
+                <div class="checkbox-group">
+                    <div class="checkbox-item">
+                        <div class="liquid-checkbox">
+                            <input type="checkbox" id="randomCVV" checked>
+                            <div class="checkmark"></div>
+                        </div>
+                        <label class="checkbox-label" for="randomCVV">🎲 Random CVV</label>
+                    </div>
+                    <div class="checkbox-item">
+                        <div class="liquid-checkbox">
+                            <input type="checkbox" id="randomExpiry" checked>
+                            <div class="checkmark"></div>
+                        </div>
+                        <label class="checkbox-label" for="randomExpiry">🎲 Random Expiry</label>
+                    </div>
+                </div>
 
-    <label>Quantity:</label>
-    <input type="number" id="quantity" min="1" max="100" value="10">
+                <button type="button" class="liquid-btn generate-btn" onclick="generateCards()">
+                    🚀 Generate Cards
+                </button>
+            </form>
+            
+            <div class="action-buttons">
+                <button class="liquid-btn" onclick="copyCards()">📋 Copy All</button>
+                <button class="liquid-btn" onclick="downloadCards()">💾 Download TXT</button>
+                <button class="liquid-btn" onclick="clearResults()">🗑️ Clear</button>
+            </div>
+        </div>
 
-    <label>Expiry Month:</label>
-    <input type="text" id="month" maxlength="2" placeholder="Random if empty">
+        <div class="glass-card">
+            <div class="results-container">
+                <div class="loading" id="loading">
+                    <div class="spinner"></div>
+                    Generating your cards...
+                </div>
+                <pre id="cards">Click "Generate Cards" to see results here...</pre>
+            </div>
+        </div>
+    </div>
 
-    <label>Expiry Year:</label>
-    <input type="text" id="year" maxlength="4" placeholder="e.g. 2027 or 27">
+    <div class="notification" id="notification"></div>
 
-    <label>CVV Length:</label>
-    <select id="cvvlen"><option value="3">3</option><option value="4">4</option></select>
+    <script>
+        function luhnCheckDigit(cardNumber) {
+            let digits = cardNumber.split('').map(Number);
+            for (let i = digits.length - 1; i >= 0; i -= 2) {
+                let d = digits[i];
+                d *= 2;
+                if (d > 9) d -= 9;
+                digits[i] = d;
+            }
+            let sum = digits.reduce((a, b) => a + b, 0);
+            return (10 - (sum % 10)) % 10;
+        }
 
-    <label><input type="checkbox" id="randomCVV" checked>Random CVV</label>
-    <label><input type="checkbox" id="randomExpiry" checked>Random Expiry</label>
-    <button type="button" class="btn" onclick="generateCards()">Generate</button>
-</form>
+        function fillBin(bin) {
+            let completed = '';
+            for (let i = 0; i < bin.length; i++)
+                completed += ((bin[i] == 'x' || bin[i] == 'X') ? Math.floor(Math.random() * 10) : bin[i]);
+            while (completed.length < 15) completed += Math.floor(Math.random() * 10);
+            return completed.slice(0, 15);
+        }
 
-<div id="cards"></div>
-<button class="btn" onclick="copyCards()">Copy All</button>
-<button class="btn" onclick="downloadCards()">Download TXT</button>
+        function detectBrand(cardNumber) {
+            if (/^4/.test(cardNumber)) return "💳 Visa";
+            if (/^5[1-5]/.test(cardNumber)) return "💳 MasterCard";
+            if (/^3[47]/.test(cardNumber)) return "💳 AMEX";
+            if (/^6/.test(cardNumber)) return "💳 Discover";
+            return "💳 Unknown";
+        }
 
-<script>
-function luhnCheckDigit(cardNumber) {
-    let digits = cardNumber.split('').map(Number);
-    for (let i=digits.length-1; i>=0; i-=2) {
-        let d = digits[i];
-        d *= 2;
-        if (d>9) d -= 9;
-        digits[i] = d;
-    }
-    let sum = digits.reduce((a,b)=>a+b,0);
-    return (10-(sum%10))%10;
-}
+        function pad(n, w) { return n.toString().padStart(w, '0'); }
 
-function fillBin(bin) {
-    let completed = '';
-    for (let i=0; i<bin.length; i++)
-        completed += ((bin[i]=='x'||bin[i]=='X') ? Math.floor(Math.random()*10) : bin[i]);
-    while(completed.length<15) completed += Math.floor(Math.random()*10);
-    return completed.slice(0,15); // leave check digit to end
-}
+        function showNotification(message, type = 'success') {
+            const notification = document.getElementById('notification');
+            notification.textContent = message;
+            notification.style.background = type === 'success' ? 
+                'linear-gradient(135deg, #667eea, #764ba2)' : 
+                'linear-gradient(135deg, #ff6b6b, #ee5a24)';
+            notification.classList.add('show');
+            
+            setTimeout(() => {
+                notification.classList.remove('show');
+            }, 3000);
+        }
 
-function detectBrand(cardNumber) {
-    if (/^4/.test(cardNumber)) return "Visa";
-    if (/^5[1-5]/.test(cardNumber)) return "MasterCard";
-    if (/^3[47]/.test(cardNumber)) return "AMEX";
-    if (/^6/.test(cardNumber)) return "Discover";
-    return "Unknown";
-}
+        async function generateCards() {
+            const loading = document.getElementById('loading');
+            const cardsElement = document.getElementById('cards');
+            
+            // Show loading
+            loading.style.display = 'block';
+            cardsElement.style.display = 'none';
+            
+            // Simulate loading delay for better UX
+            await new Promise(resolve => setTimeout(resolve, 800));
+            
+            let bin = document.getElementById("bin").value || (400000 + Math.floor(Math.random() * 100000)).toString();
+            let quantity = parseInt(document.getElementById("quantity").value) || 10;
+            let month = document.getElementById("month").value;
+            let year = document.getElementById("year").value;
+            let cvvlen = parseInt(document.getElementById("cvvlen").value);
+            let randomCVV = document.getElementById("randomCVV").checked;
+            let randomExpiry = document.getElementById("randomExpiry").checked;
 
-function pad(n, w) {return n.toString().padStart(w,'0');}
+            let cards = "";
+            for (let q = 0; q < quantity; q++) {
+                let incomplete = fillBin(bin);
+                let checkDig = luhnCheckDigit(incomplete);
+                let full_card = incomplete + checkDig;
 
-function generateCards() {
-    let bin = document.getElementById("bin").value || (400000 + Math.floor(Math.random()*100000)).toString();
-    let quantity = parseInt(document.getElementById("quantity").value) || 10;
-    let month = document.getElementById("month").value;
-    let year = document.getElementById("year").value;
-    let cvvlen = parseInt(document.getElementById("cvvlen").value);
-    let randomCVV = document.getElementById("randomCVV").checked;
-    let randomExpiry = document.getElementById("randomExpiry").checked;
+                let exp_m = randomExpiry ? pad(Math.floor(Math.random() * 12) + 1, 2) : pad(month || Math.floor(Math.random() * 12) + 1, 2);
+                let nowY = new Date().getFullYear();
+                let exp_y = randomExpiry ? (nowY + Math.floor(Math.random() * 5) + 1).toString() : (year.length == 2 ? "20" + year : year || nowY + Math.floor(Math.random() * 5) + 1);
 
-    let cards = "";
-    for (let q=0; q<quantity; q++) {
-        // Card Number
-        let incomplete = fillBin(bin);
-        let checkDig = luhnCheckDigit(incomplete);
-        let full_card = incomplete + checkDig;
+                let cvv = randomCVV ? pad(Math.floor(Math.random() * Math.pow(10, cvvlen)), cvvlen) : pad('0', cvvlen);
 
-        // Expiry
-        let exp_m = randomExpiry ? pad(Math.floor(Math.random()*12)+1,2) : pad(month||Math.floor(Math.random()*12)+1,2);
-        let nowY = new Date().getFullYear();
-        let exp_y = randomExpiry ? (nowY+Math.floor(Math.random()*5)+1).toString() : (year.length==2?"20"+year:year||nowY+Math.floor(Math.random()*5)+1);
+                let brand = detectBrand(full_card);
 
-        // CVV
-        let cvv = randomCVV ? pad(Math.floor(Math.random() * Math.pow(10,cvvlen)),cvvlen) : pad('0',cvvlen);
+                cards += `${full_card}|${exp_m}|${exp_y}|${cvv}    ${brand}\n`;
+            }
+            
+            // Hide loading and show results
+            loading.style.display = 'none';
+            cardsElement.style.display = 'block';
+            cardsElement.textContent = cards;
+            
+            showNotification(`✅ Generated ${quantity} cards successfully!`);
+        }
 
-        let brand = detectBrand(full_card);
+        function copyCards() {
+            let cards = document.getElementById("cards").textContent;
+            if (cards.includes("Click")) {
+                showNotification("❌ No cards to copy! Generate some first.", 'error');
+                return;
+            }
+            navigator.clipboard.writeText(cards).then(() => {
+                showNotification("📋 Cards copied to clipboard!");
+            });
+        }
 
-        cards += `${full_card}|${exp_m}|${exp_y}|${cvv}    (${brand})\n`;
-    }
-    document.getElementById("cards").textContent = cards;
-}
+        function downloadCards() {
+            let cards = document.getElementById("cards").textContent;
+            if (cards.includes("Click")) {
+                showNotification("❌ No cards to download! Generate some first.", 'error');
+                return;
+            }
+            let blob = new Blob([cards], { type: "text/plain" });
+            let url = URL.createObjectURL(blob);
+            let a = document.createElement('a');
+            a.href = url;
+            a.download = `cards_${new Date().toISOString().slice(0, 10)}.txt`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            showNotification("💾 Cards downloaded successfully!");
+        }
 
-function copyCards() {
-    let cards = document.getElementById("cards").textContent;
-    navigator.clipboard.writeText(cards);
-    alert("Copied!");
-}
+        function clearResults() {
+            document.getElementById("cards").textContent = "Click \"Generate Cards\" to see results here...";
+            showNotification("🗑️ Results cleared!");
+        }
 
-function downloadCards() {
-    let cards = document.getElementById("cards").textContent;
-    let blob = new Blob([cards], {type:"text/plain"});
-    let url = URL.createObjectURL(blob);
-    let a = document.createElement('a');
-    a.href = url; a.download = "cards.txt";
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
-}
-</script>
+        // Add some interactive effects
+        document.addEventListener('DOMContentLoaded', function() {
+            // Add focus effects to inputs
+            const inputs = document.querySelectorAll('.liquid-input');
+            inputs.forEach(input => {
+                input.addEventListener('focus', function() {
+                    this.parentElement.style.transform = 'translateY(-2px)';
+                });
+                input.addEventListener('blur', function() {
+                    this.parentElement.style.transform = 'translateY(0)';
+                });
+            });
+        });
+    </script>
 </body>
 </html>
