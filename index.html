@@ -6,8 +6,6 @@
     <title>Liquid Card Generator</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
-
-        
         
         * {
             margin: 0;
@@ -21,6 +19,7 @@
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             position: relative;
             overflow-x: hidden;
+            padding: 1rem;
         }
 
         /* Animated background bubbles */
@@ -46,22 +45,19 @@
         }
 
         .container {
-            max-width: 800px;
+            max-width: 900px;
             margin: 0 auto;
-            padding: 2rem;
-            min-height: 100vh;
             display: flex;
             flex-direction: column;
-            justify-content: center;
-            gap: 2rem;
+            gap: 1.5rem;
         }
 
         .glass-card {
             background: rgba(255, 255, 255, 0.1);
             backdrop-filter: blur(20px);
-            border-radius: 24px;
+            border-radius: 20px;
             border: 1px solid rgba(255, 255, 255, 0.2);
-            padding: 2.5rem;
+            padding: 1.5rem;
             box-shadow: 
                 0 8px 32px 0 rgba(31, 38, 135, 0.37),
                 inset 0 1px 0 rgba(255, 255, 255, 0.3);
@@ -69,18 +65,18 @@
         }
 
         .glass-card:hover {
-            transform: translateY(-5px);
+            transform: translateY(-3px);
             box-shadow: 
-                0 20px 40px 0 rgba(31, 38, 135, 0.5),
+                0 15px 35px 0 rgba(31, 38, 135, 0.4),
                 inset 0 1px 0 rgba(255, 255, 255, 0.4);
         }
 
         h1 {
             text-align: center;
             color: rgba(255, 255, 255, 0.95);
-            font-size: 2.5rem;
+            font-size: 2rem;
             font-weight: 700;
-            margin-bottom: 1rem;
+            margin-bottom: 0.5rem;
             text-shadow: 0 2px 20px rgba(0, 0, 0, 0.3);
             background: linear-gradient(135deg, #fff 0%, rgba(255, 255, 255, 0.8) 100%);
             -webkit-background-clip: text;
@@ -91,16 +87,16 @@
         .subtitle {
             text-align: center;
             color: rgba(255, 255, 255, 0.7);
-            font-size: 1.1rem;
-            margin-bottom: 2rem;
+            font-size: 1rem;
+            margin-bottom: 1.5rem;
             font-weight: 300;
         }
 
         .form-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 1.5rem;
-            margin-bottom: 2rem;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1.5rem;
         }
 
         .form-group {
@@ -111,24 +107,41 @@
             display: block;
             color: rgba(255, 255, 255, 0.8);
             font-weight: 500;
-            margin-bottom: 0.5rem;
-            font-size: 0.9rem;
+            margin-bottom: 0.4rem;
+            font-size: 0.85rem;
             letter-spacing: 0.5px;
         }
 
-        .liquid-input {
+        .liquid-input, .liquid-select {
             width: 100%;
-            padding: 1rem 1.25rem;
+            padding: 0.8rem 1rem;
             background: rgba(255, 255, 255, 0.1);
             border: 1px solid rgba(255, 255, 255, 0.2);
-            border-radius: 16px;
+            border-radius: 12px;
             color: white;
-            font-size: 1rem;
+            font-size: 0.9rem;
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             backdrop-filter: blur(10px);
+            font-family: inherit;
         }
 
-        .liquid-input:focus {
+        .liquid-select {
+            cursor: pointer;
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='rgba(255,255,255,0.6)' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e");
+            background-position: right 0.75rem center;
+            background-repeat: no-repeat;
+            background-size: 1.5em 1.5em;
+            padding-right: 2.5rem;
+        }
+
+        .liquid-select option {
+            background: rgba(102, 126, 234, 0.95);
+            color: white;
+            padding: 0.5rem;
+        }
+
+        .liquid-input:focus, .liquid-select:focus {
             outline: none;
             border-color: rgba(255, 255, 255, 0.5);
             background: rgba(255, 255, 255, 0.15);
@@ -144,26 +157,27 @@
 
         .checkbox-group {
             display: flex;
-            gap: 2rem;
-            margin: 1.5rem 0;
+            gap: 1.5rem;
+            margin: 1rem 0;
             flex-wrap: wrap;
+            justify-content: center;
         }
 
         .checkbox-item {
             display: flex;
             align-items: center;
-            gap: 0.75rem;
+            gap: 0.6rem;
             cursor: pointer;
             user-select: none;
         }
 
         .liquid-checkbox {
             position: relative;
-            width: 20px;
-            height: 20px;
+            width: 18px;
+            height: 18px;
             background: rgba(255, 255, 255, 0.1);
             border: 2px solid rgba(255, 255, 255, 0.3);
-            border-radius: 6px;
+            border-radius: 5px;
             transition: all 0.3s ease;
         }
 
@@ -192,7 +206,7 @@
             left: 50%;
             transform: translate(-50%, -50%) scale(0);
             color: white;
-            font-size: 12px;
+            font-size: 11px;
             font-weight: bold;
             opacity: 0;
             transition: all 0.2s ease;
@@ -201,31 +215,33 @@
         .checkbox-label {
             color: rgba(255, 255, 255, 0.8);
             font-weight: 400;
+            font-size: 0.9rem;
         }
 
         .liquid-btn {
             background: linear-gradient(135deg, rgba(255, 255, 255, 0.2) 0%, rgba(255, 255, 255, 0.1) 100%);
             border: 1px solid rgba(255, 255, 255, 0.3);
-            border-radius: 16px;
+            border-radius: 12px;
             color: white;
-            padding: 1rem 2rem;
-            font-size: 1.1rem;
+            padding: 0.8rem 1.5rem;
+            font-size: 0.95rem;
             font-weight: 600;
             cursor: pointer;
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             backdrop-filter: blur(10px);
             position: relative;
             overflow: hidden;
+            font-family: inherit;
         }
 
         .liquid-btn:hover {
-            transform: translateY(-3px);
+            transform: translateY(-2px);
             background: linear-gradient(135deg, rgba(255, 255, 255, 0.3) 0%, rgba(255, 255, 255, 0.2) 100%);
-            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
         }
 
         .liquid-btn:active {
-            transform: translateY(-1px);
+            transform: translateY(0);
         }
 
         .liquid-btn::before {
@@ -247,22 +263,24 @@
             width: 100%;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             margin-bottom: 1rem;
-            font-size: 1.2rem;
-            padding: 1.25rem;
+            font-size: 1.1rem;
+            padding: 1rem;
         }
 
         .action-buttons {
             display: flex;
-            gap: 1rem;
+            gap: 0.8rem;
             justify-content: center;
             flex-wrap: wrap;
         }
 
         .results-container {
             background: rgba(0, 0, 0, 0.2);
-            border-radius: 20px;
-            padding: 2rem;
-            min-height: 200px;
+            border-radius: 16px;
+            padding: 1.5rem;
+            min-height: 150px;
+            max-height: 300px;
+            overflow-y: auto;
             backdrop-filter: blur(10px);
             border: 1px solid rgba(255, 255, 255, 0.1);
             position: relative;
@@ -281,8 +299,8 @@
         #cards {
             color: rgba(255, 255, 255, 0.9);
             font-family: 'JetBrains Mono', 'Courier New', monospace;
-            font-size: 0.95rem;
-            line-height: 1.6;
+            font-size: 0.85rem;
+            line-height: 1.5;
             white-space: pre-wrap;
             word-break: break-all;
         }
@@ -296,8 +314,8 @@
 
         .spinner {
             display: inline-block;
-            width: 20px;
-            height: 20px;
+            width: 18px;
+            height: 18px;
             border: 2px solid rgba(255, 255, 255, 0.3);
             border-radius: 50%;
             border-top-color: rgba(255, 255, 255, 0.8);
@@ -315,42 +333,104 @@
             right: 20px;
             background: rgba(0, 0, 0, 0.8);
             color: white;
-            padding: 1rem 1.5rem;
-            border-radius: 12px;
+            padding: 0.8rem 1.2rem;
+            border-radius: 10px;
             backdrop-filter: blur(10px);
             border: 1px solid rgba(255, 255, 255, 0.2);
             transform: translateX(400px);
             transition: transform 0.3s ease;
             z-index: 1000;
+            font-size: 0.9rem;
         }
 
         .notification.show {
             transform: translateX(0);
         }
 
+        /* Scrollbar styling */
+        .results-container::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .results-container::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 3px;
+        }
+
+        .results-container::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 3px;
+        }
+
+        .results-container::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 255, 255, 0.5);
+        }
+
         @media (max-width: 768px) {
+            body {
+                padding: 0.5rem;
+            }
+            
             .container {
-                padding: 1rem;
+                gap: 1rem;
             }
             
             .glass-card {
-                padding: 1.5rem;
+                padding: 1rem;
             }
             
             h1 {
-                font-size: 2rem;
+                font-size: 1.6rem;
             }
             
             .form-grid {
                 grid-template-columns: 1fr;
+                gap: 0.8rem;
             }
             
             .checkbox-group {
-                justify-content: center;
+                gap: 1rem;
+                margin: 0.8rem 0;
             }
             
             .action-buttons {
                 flex-direction: column;
+                gap: 0.6rem;
+            }
+
+            .liquid-btn {
+                padding: 0.7rem 1.2rem;
+                font-size: 0.9rem;
+            }
+
+            .results-container {
+                max-height: 200px;
+                padding: 1rem;
+            }
+
+            #cards {
+                font-size: 0.8rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            h1 {
+                font-size: 1.4rem;
+            }
+            
+            .subtitle {
+                font-size: 0.9rem;
+            }
+
+            .liquid-input, .liquid-select {
+                padding: 0.7rem 0.8rem;
+                font-size: 0.85rem;
+            }
+
+            .checkbox-group {
+                flex-direction: column;
+                align-items: center;
+                gap: 0.8rem;
             }
         }
     </style>
@@ -374,18 +454,18 @@
                     </div>
                     
                     <div class="form-group">
-                        <label for="month">📅 Expiry Month</label>
-                        <input type="text" id="month" class="liquid-input" maxlength="2" placeholder="MM (Random if empty)">
+                        <label for="month">📅 Month</label>
+                        <input type="text" id="month" class="liquid-input" maxlength="2" placeholder="MM">
                     </div>
                     
                     <div class="form-group">
-                        <label for="year">🗓️ Expiry Year</label>
-                        <input type="text" id="year" class="liquid-input" maxlength="4" placeholder="YYYY or YY">
+                        <label for="year">🗓️ Year</label>
+                        <input type="text" id="year" class="liquid-input" maxlength="4" placeholder="YYYY">
                     </div>
                     
                     <div class="form-group">
                         <label for="cvvlen">🔒 CVV Length</label>
-                        <select id="cvvlen" class="liquid-input">
+                        <select id="cvvlen" class="liquid-select">
                             <option value="3">3 digits</option>
                             <option value="4">4 digits</option>
                         </select>
@@ -415,8 +495,8 @@
             </form>
             
             <div class="action-buttons">
-                <button class="liquid-btn" onclick="copyCards()">📋 Copy All</button>
-                <button class="liquid-btn" onclick="downloadCards()">💾 Download TXT</button>
+                <button class="liquid-btn" onclick="copyCards()">📋 Copy</button>
+                <button class="liquid-btn" onclick="downloadCards()">💾 Download</button>
                 <button class="liquid-btn" onclick="clearResults()">🗑️ Clear</button>
             </div>
         </div>
@@ -425,9 +505,9 @@
             <div class="results-container">
                 <div class="loading" id="loading">
                     <div class="spinner"></div>
-                    Generating your cards...
+                    Generating cards...
                 </div>
-                <pre id="cards">Click "Generate Cards" to see results here...</pre>
+                <pre id="cards">Click "Generate Cards" to see results...</pre>
             </div>
         </div>
     </div>
@@ -455,14 +535,6 @@
             return completed.slice(0, 15);
         }
 
-        function detectBrand(cardNumber) {
-            if (/^4/.test(cardNumber)) return "💳 Visa";
-            if (/^5[1-5]/.test(cardNumber)) return "💳 MasterCard";
-            if (/^3[47]/.test(cardNumber)) return "💳 AMEX";
-            if (/^6/.test(cardNumber)) return "💳 Discover";
-            return "💳 Unknown";
-        }
-
         function pad(n, w) { return n.toString().padStart(w, '0'); }
 
         function showNotification(message, type = 'success') {
@@ -482,12 +554,10 @@
             const loading = document.getElementById('loading');
             const cardsElement = document.getElementById('cards');
             
-            // Show loading
             loading.style.display = 'block';
             cardsElement.style.display = 'none';
             
-            // Simulate loading delay for better UX
-            await new Promise(resolve => setTimeout(resolve, 800));
+            await new Promise(resolve => setTimeout(resolve, 600));
             
             let bin = document.getElementById("bin").value || (400000 + Math.floor(Math.random() * 100000)).toString();
             let quantity = parseInt(document.getElementById("quantity").value) || 10;
@@ -509,34 +579,31 @@
 
                 let cvv = randomCVV ? pad(Math.floor(Math.random() * Math.pow(10, cvvlen)), cvvlen) : pad('0', cvvlen);
 
-                let brand = detectBrand(full_card);
-
-                cards += `${full_card}|${exp_m}|${exp_y}|${cvv}    ${brand}\n`;
+                cards += `${full_card}|${exp_m}|${exp_y}|${cvv}\n`;
             }
             
-            // Hide loading and show results
             loading.style.display = 'none';
             cardsElement.style.display = 'block';
             cardsElement.textContent = cards;
             
-            showNotification(`✅ Generated ${quantity} cards successfully!`);
+            showNotification(`✅ Generated ${quantity} cards!`);
         }
 
         function copyCards() {
             let cards = document.getElementById("cards").textContent;
             if (cards.includes("Click")) {
-                showNotification("❌ No cards to copy! Generate some first.", 'error');
+                showNotification("❌ Generate cards first!", 'error');
                 return;
             }
             navigator.clipboard.writeText(cards).then(() => {
-                showNotification("📋 Cards copied to clipboard!");
+                showNotification("📋 Copied to clipboard!");
             });
         }
 
         function downloadCards() {
             let cards = document.getElementById("cards").textContent;
             if (cards.includes("Click")) {
-                showNotification("❌ No cards to download! Generate some first.", 'error');
+                showNotification("❌ Generate cards first!", 'error');
                 return;
             }
             let blob = new Blob([cards], { type: "text/plain" });
@@ -548,18 +615,16 @@
             a.click();
             document.body.removeChild(a);
             URL.revokeObjectURL(url);
-            showNotification("💾 Cards downloaded successfully!");
+            showNotification("💾 Downloaded successfully!");
         }
 
         function clearResults() {
-            document.getElementById("cards").textContent = "Click \"Generate Cards\" to see results here...";
+            document.getElementById("cards").textContent = "Click \"Generate Cards\" to see results...";
             showNotification("🗑️ Results cleared!");
         }
 
-        // Add some interactive effects
         document.addEventListener('DOMContentLoaded', function() {
-            // Add focus effects to inputs
-            const inputs = document.querySelectorAll('.liquid-input');
+            const inputs = document.querySelectorAll('.liquid-input, .liquid-select');
             inputs.forEach(input => {
                 input.addEventListener('focus', function() {
                     this.parentElement.style.transform = 'translateY(-2px)';
